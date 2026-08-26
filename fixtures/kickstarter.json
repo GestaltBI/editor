@@ -1,0 +1,413 @@
+{
+  "type": "processing",
+  "version": "1",
+  "name": "kickstarter",
+  "process": {
+    "format_dates": {
+      "op": "format",
+      "options": {
+        "dateTag": "uatu:date",
+        "dateFormat": "YYYY-MM-DD",
+        "numberTag": "uatu:measure"
+      }
+    },
+    "clear": {
+      "op": "clear",
+      "require": [
+        "format_dates"
+      ]
+    },
+    "globalfilter": {
+      "op": "globalfilter",
+      "require": [
+        "clear"
+      ]
+    },
+    "localfilter": {
+      "op": "localfilter",
+      "require": [
+        "globalfilter"
+      ]
+    },
+    "pre_agg_enhance": {
+      "op": "enhance",
+      "require": [
+        "localfilter"
+      ],
+      "options": {
+        "nullSafe": true,
+        "columns": [
+          {
+            "column": "ks:calc:shortfall",
+            "calculate": "expr",
+            "expr": [
+              "-",
+              "ks:pledged_usd",
+              "ks:goal_usd"
+            ]
+          }
+        ]
+      }
+    },
+    "date_agg": {
+      "op": "aggregate",
+      "require": [
+        "pre_agg_enhance"
+      ],
+      "options": {
+        "groupby": [
+          "uatu:date"
+        ]
+      }
+    },
+    "cat_agg": {
+      "op": "aggregate",
+      "require": [
+        "pre_agg_enhance"
+      ],
+      "options": {
+        "groupby": [
+          "uatu:date",
+          "ks:category"
+        ]
+      }
+    },
+    "country_agg": {
+      "op": "aggregate",
+      "require": [
+        "pre_agg_enhance"
+      ],
+      "options": {
+        "groupby": [
+          "uatu:date",
+          "ks:country"
+        ]
+      }
+    },
+    "enhance": {
+      "op": "enhance",
+      "require": [
+        "date_agg"
+      ],
+      "options": {
+        "cumulateOn": [
+          "uatu:date"
+        ],
+        "columns": [
+          {
+            "column": "ks:calc:cum_pledged",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": [
+              "ks:pledged_usd:sum"
+            ]
+          },
+          {
+            "column": "ks:calc:cum_goal",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": [
+              "ks:goal_usd:sum"
+            ]
+          },
+          {
+            "column": "ks:calc:cum_projects",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": [
+              "ks:projects:sum"
+            ]
+          }
+        ]
+      }
+    },
+    "longtable": {
+      "op": "clear",
+      "require": [
+        "enhance"
+      ]
+    },
+    "longgraph": {
+      "op": "clear",
+      "require": [
+        "enhance"
+      ]
+    },
+    "longmap": {
+      "op": "clear",
+      "require": [
+        "country_agg"
+      ]
+    },
+    "synctable": {
+      "op": "clear",
+      "require": [
+        "cat_agg"
+      ]
+    },
+    "syncgraph": {
+      "op": "clear",
+      "require": [
+        "cat_agg"
+      ]
+    },
+    "syncmap": {
+      "op": "clear",
+      "require": [
+        "country_agg"
+      ]
+    },
+    "pointtable": {
+      "op": "clear",
+      "require": [
+        "cat_agg"
+      ]
+    },
+    "pointgraph": {
+      "op": "clear",
+      "require": [
+        "cat_agg"
+      ]
+    },
+    "pointmap": {
+      "op": "clear",
+      "require": [
+        "country_agg"
+      ]
+    },
+    "conf_basegraph": {
+      "op": "noop",
+      "options": {
+        "prefixes": [
+          "baseA",
+          "baseB"
+        ],
+        "startingDynamicMeasure": "ks:pledged_usd:sum",
+        "startingFixedMeasure": "ks:goal_usd:sum"
+      }
+    },
+    "conf_longgraph": {
+      "op": "noop",
+      "options": {
+        "name": "",
+        "prefixes": [
+          "longA",
+          "longB"
+        ],
+        "revenue": "ks:calc:cum_pledged",
+        "rows": []
+      }
+    },
+    "conf_syncgraph": {
+      "op": "noop",
+      "options": {
+        "name": "",
+        "prefixes": [
+          "syncA",
+          "syncB"
+        ],
+        "revenue": "ks:pledged_usd:sum",
+        "rows": [
+          "ks:category"
+        ]
+      }
+    },
+    "conf_pointgraph": {
+      "op": "noop",
+      "options": {
+        "name": "",
+        "prefixes": [
+          "pointA",
+          "pointB"
+        ],
+        "revenue": "ks:pledged_usd:sum",
+        "rows": [
+          "ks:category"
+        ]
+      }
+    },
+    "conf_longtable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "Month",
+            "sortable": true,
+            "field": "uatu:date",
+            "formatter": "date"
+          },
+          {
+            "headerName": "Projects",
+            "sortable": true,
+            "field": "ks:projects:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Resolved",
+            "field": "ks:resolved:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Successful",
+            "field": "ks:successful:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Failed",
+            "field": "ks:failed:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Success rate",
+            "field": "ks:calc:success_rate"
+          },
+          {
+            "headerName": "Goal (USD)",
+            "field": "ks:goal_usd:sum"
+          },
+          {
+            "headerName": "Pledged (USD)",
+            "field": "ks:pledged_usd:sum"
+          },
+          {
+            "headerName": "Funding ratio",
+            "field": "ks:calc:funding_ratio"
+          },
+          {
+            "headerName": "Backers",
+            "field": "ks:backers:sum",
+            "formatter": "floatamount"
+          }
+        ]
+      }
+    },
+    "conf_synctable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "Month",
+            "sortable": true,
+            "field": "uatu:date",
+            "formatter": "date"
+          },
+          {
+            "headerName": "Category",
+            "sortable": true,
+            "field": "ks:category"
+          },
+          {
+            "headerName": "Projects",
+            "field": "ks:projects:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Success rate",
+            "field": "ks:calc:success_rate"
+          },
+          {
+            "headerName": "Fail rate",
+            "field": "ks:calc:fail_rate"
+          },
+          {
+            "headerName": "Pledged (USD)",
+            "field": "ks:pledged_usd:sum"
+          },
+          {
+            "headerName": "Shortfall (USD)",
+            "field": "ks:calc:shortfall:sum"
+          },
+          {
+            "headerName": "Avg pledge",
+            "field": "ks:calc:avg_pledge"
+          }
+        ]
+      }
+    },
+    "conf_pointtable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "Month",
+            "sortable": true,
+            "field": "uatu:date",
+            "formatter": "date"
+          },
+          {
+            "headerName": "Category",
+            "sortable": true,
+            "field": "ks:category"
+          },
+          {
+            "headerName": "Staff picks",
+            "field": "ks:staff_picks:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Projects",
+            "field": "ks:projects:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Success rate",
+            "field": "ks:calc:success_rate"
+          },
+          {
+            "headerName": "Backers",
+            "field": "ks:backers:sum",
+            "formatter": "floatamount"
+          }
+        ]
+      }
+    },
+    "conf_syncdifftable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "Category",
+            "sortable": true,
+            "field": "ks:category"
+          },
+          {
+            "headerName": "Projects",
+            "field": "ks:projects:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "Success rate",
+            "field": "ks:calc:success_rate"
+          }
+        ]
+      }
+    },
+    "conf_syncdiffgraph": {
+      "op": "noop",
+      "options": {
+        "name": "",
+        "prefixes": [
+          "syncdiffA",
+          "syncdiffB"
+        ],
+        "revenue": "ks:pledged_usd:sum",
+        "rows": [
+          "ks:category"
+        ]
+      }
+    },
+    "conf_explore": {
+      "op": "noop",
+      "options": {
+        "source": "pre_agg_enhance"
+      }
+    },
+    "conf_narrative": {
+      "op": "noop",
+      "options": {
+        "source": "pre_agg_enhance",
+        "currency": "USD"
+      }
+    }
+  }
+}

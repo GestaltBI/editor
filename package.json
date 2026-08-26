@@ -1,0 +1,36 @@
+{
+  "name": "@gestaltbi/editor",
+  "version": "0.1.0",
+  "description": "Read a GestaltBI process graph as a graph: typed nodes, laid out, validated, and written back without losing what it did not understand. Renders nothing.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src", "README.md"],
+  "engines": { "node": ">=20.19.0" },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "docs": "node tools/docs/build.mjs",
+    "prepare": "npm run build",
+    "prepack": "npm run clean && npm run build"
+  },
+  "peerDependencies": { "@gestaltbi/stream": ">=0.1.0" },
+  "devDependencies": {
+    "@gestaltbi/stream": "github:GestaltBI/stream",
+    "typescript": "~5.9.0"
+  },
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "git+https://github.com/GestaltBI/editor.git" },
+  "homepage": "https://github.com/GestaltBI/editor",
+  "bugs": "https://github.com/GestaltBI/editor/issues",
+  "keywords": ["gestaltbi", "pipeline", "dag", "graph-layout", "node-editor"]
+}

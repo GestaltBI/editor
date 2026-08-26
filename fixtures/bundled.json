@@ -1,0 +1,1216 @@
+{
+  "type": "process",
+  "version": "1.0",
+
+  "name": "smartbi",
+  "process": {
+    "format_dates": {
+      "op": "format",
+      "options": {
+        "dateTag": "uatu:date",
+        "dateFormat": "DD-MM-YYYY",
+        "numberTag": "uatu:measure"
+      }
+    },
+    "clear": {
+      "op": "clear",
+      "require": ["format_dates"]
+    },
+    "globalfilter": {
+      "op": "globalfilter",
+      "require": ["clear"]
+    },
+    "localfilter": {
+      "op": "localfilter",
+      "require": ["globalfilter"]
+    },
+    "pre_agg_enhance": {
+      "op": "enhance",
+      "require": ["localfilter"],
+      "options": {
+        "columns": [
+          {
+            "column": "smartbi:calc:daily_revenue",
+            "calculate": "expr",
+            "expr": ["*", "smartbi:sold_quant", "smartbi:sold_price"]
+          },
+          {
+            "column": "smartbi:calc:daily_cost",
+            "calculate": "expr",
+            "expr": ["*", "smartbi:sold_quant", "smartbi:unit_cost"]
+          },
+          {
+            "column": "smartbi:calc:daily_ro",
+            "calculate": "expr",
+            "expr": ["-", "smartbi:calc:daily_revenue", "smartbi:calc:daily_cost"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_sold",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:sold_quant"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_revenue",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_revenue"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_cost",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_cost"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_ro",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_ro"]
+          }
+        ]
+      }
+    },
+
+    "province_agg": {
+      "op": "aggregate",
+      "require": ["pre_agg_enhance"],
+      "options": {
+        "groupby": ["smartbi:delivery_region", "smartbi:delivery_pc"]
+      }
+    },
+    "date_plus_agg": {
+      "op": "aggregate",
+      "require": ["pre_agg_enhance"],
+      "options": {
+        "groupby": ["uatu:date"]
+      }
+    },
+    "date_plus_agg_graph": {
+      "op": "aggregate",
+      "require": ["pre_agg_enhance"],
+      "options": {
+        "groupby": [
+          "uatu:date",
+          "smartbi:customer",
+          "smartbi:product_code",
+          "smartbi:product_name",
+          "smartbi:product_family",
+          "smartbi:delivery_region",
+          "smartbi:delivery_pc"
+        ]
+      }
+    },
+    "prod_agg": {
+      "op": "aggregate",
+      "require": ["pre_agg_enhance"],
+      "options": {
+        "groupby": ["smartbi:product_code"]
+      }
+    },
+    "enhance": {
+      "op": "enhance",
+      "require": ["date_plus_agg"],
+      "options": {
+        "cumulateOn": ["uatu:date"],
+        "columns": [
+          {
+            "column": "smartbi:calc:cumulative_sold",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_revenue",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_revenue:sum"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_cost",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_cost:sum"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_ro",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_ro:sum"]
+          }
+        ]
+      }
+    },
+    "enhance_graph": {
+      "op": "enhance",
+      "require": ["date_plus_agg_graph"],
+      "options": {
+        "cumulateOn": ["uatu:date"],
+        "columns": [
+          {
+            "column": "smartbi:calc:cumulative_sold",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_revenue",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_revenue"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_cost",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_cost"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_ro",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_ro:sum"]
+          }
+        ]
+      }
+    },
+    "point_enhance": {
+      "op": "enhance",
+      "require": ["prod_agg"],
+      "options": {
+        "cumulateOn": ["uatu:date"],
+        "columns": [
+          {
+            "column": "smartbi:calc:cumulative_sold",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_revenue",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_revenue"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_cost",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_cost"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_ro",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_ro"]
+          }
+        ]
+      }
+    },
+    "changeenhance": {
+      "op": "enhance",
+      "require": ["province_agg"],
+      "options": {
+        "cumulateOn": ["uatu:date"],
+        "columns": [
+          {
+            "column": "smartbi:calc:cumulative_sold",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_revenue",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_revenue"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_cost",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_cost"]
+          },
+          {
+            "column": "smartbi:calc:cumulative_ro",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:daily_ro"]
+          }
+        ]
+      }
+    },
+    "enhancecum": {
+      "op": "enhance",
+      "require": ["enhance"],
+      "options": {
+        "columns": [
+          {
+            "column": "smartbi:calc:cumulative_price_avg",
+            "calculate": "expr",
+            "expr": ["/", "smartbi:calc:cumulative_revenue", "smartbi:calc:cumulative_sold"]
+          }
+        ]
+      }
+    },
+    "changeenhancecum": {
+      "op": "enhance",
+      "require": ["changeenhance"],
+      "options": {
+        "columns": [
+          {
+            "column": "smartbi:calc:cumulative_price_avg",
+            "calculate": "expr",
+            "expr": ["/", "smartbi:calc:cumulative_revenue", "smartbi:calc:cumulative_sold"]
+          }
+        ]
+      }
+    },
+
+    "geocode": {
+      "op": "geocode",
+      "require": ["province_agg"],
+      "options": {
+        "geocoding": [
+          {
+            "col": "smartbi:delivery_pc",
+            "file": "geo/it_p_c.geojson",
+            "field": "DEN",
+            "columns": {
+              "lon": "smartbi:delivery_province_lon",
+              "lat": "smartbi:delivery_province_lat"
+            }
+          }
+        ]
+      }
+    },
+
+    "changegeocode": {
+      "op": "geocode",
+      "require": ["changeenhancecum"],
+      "options": {
+        "geocoding": [
+          {
+            "col": "smartbi:delivery_pc",
+            "file": "geo/it_p_c.geojson",
+            "field": "DEN",
+            "columns": {
+              "lon": "smartbi:delivery_province_lon",
+              "lat": "smartbi:delivery_province_lat"
+            }
+          }
+        ]
+      }
+    },
+
+    "longtable": {
+      "op": "clear",
+      "require": ["enhance"]
+    },
+
+    "difftable": {
+      "op": "clear",
+      "require": ["prod_agg"]
+    },
+
+    "changetable": {
+      "op": "clear",
+      "require": ["date_plus_agg"]
+    },
+
+    "pointtable": {
+      "op": "clear",
+      "require": ["point_enhance"]
+    },
+
+    "synctable": {
+      "op": "clear",
+      "require": ["enhance"]
+    },
+
+    "longmap": {
+      "op": "geojsonify",
+      "require": ["geocode"]
+    },
+
+    "diffmap": {
+      "op": "geojsonify",
+      "require": ["geocode"]
+    },
+
+    "changemap": {
+      "op": "geojsonify",
+      "require": ["changegeocode"]
+    },
+
+    "pointmap": {
+      "op": "geojsonify",
+      "require": ["geocode"]
+    },
+
+    "syncmap": {
+      "op": "geojsonify",
+      "require": ["geocode"]
+    },
+
+    "longgraph": {
+      "op": "clear",
+      "require": ["enhance"]
+    },
+
+    "diffgraph": {
+      "op": "clear",
+      "require": ["enhance"]
+    },
+
+    "changegraph": {
+      "op": "clear",
+      "require": ["enhancecum"]
+    },
+
+    "pointgraph": {
+      "op": "clear",
+      "require": ["enhance"]
+    },
+
+    "syncgraph": {
+      "op": "clear",
+      "require": ["date_plus_agg_graph"]
+    },
+
+    "conf_syncgraph": {
+      "op": "noop",
+      "options": {
+        "name": "syncgraph",
+        "prefixes": ["focusA", "focusB"],
+        "barFilterField": "smartbi:customer",
+        "pieFilterField": "smartbi:product_name",
+        "bubbleRootField": "smartbi:product_name",
+        "bubbleXField": "smartbi:sold_price:avg",
+        "bubbleYField": "smartbi:sold_quant:sum",
+        "bubbleSizeField": "smartbi:calc:cumulative_revenue",
+        "sankeyRootField": "",
+        "sankeyFirstLevelField": "smartbi:delivery_region",
+        "sankeySecondLevelField": "smartbi:delivery_pc"
+      }
+    },
+    "conf_diffmap": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["diffA", "diffB"],
+        "revenue": "smartbi:calc:diff_ro",
+        "rows": [
+          {
+            "column": "smartbi:calc:diff_ro:cum",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_ro", "diffA:smartbi:calc:cumulative_ro"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["-", "diffB:smartbi:calc:daily_ro:sum", "diffA:smartbi:calc:daily_ro:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_revenue",
+            "expr": ["-", "diffB:smartbi:calc:daily_revenue:sum", "diffA:smartbi:calc:daily_revenue:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_quant",
+            "expr": ["-", "diffB:smartbi:sold_quant:sum", "diffA:smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_price",
+            "expr": ["-", "diffB:smartbi:sold_price:avg", "diffA:smartbi:sold_price:avg"]
+          },
+          {
+            "column": "smartbi:calc:diff_cumulative_cost",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_cost", "diffA:smartbi:calc:cumulative_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_cumulative_revenue",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_revenue", "diffA:smartbi:calc:cumulative_revenue"]
+          },
+          {
+            "column": "smartbi:calc:diff_cumulative_sold",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_sold", "diffA:smartbi:calc:cumulative_sold"]
+          }
+        ]
+      }
+    },
+    "conf_diffgraph": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["diffA", "diffB"],
+        "revenue": "",
+        "rows": [
+          {
+            "column": "smartbi:calc:diff_ro:cum",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_ro", "diffA:smartbi:calc:cumulative_ro"]
+          },
+          {
+            "column": "smartbi:calc:diff_cumulative_revenue",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_revenue", "diffA:smartbi:calc:cumulative_revenue"]
+          },
+          {
+            "column": "smartbi:calc:diff_cumulative_sold",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_sold", "diffA:smartbi:calc:cumulative_sold"]
+          },
+          {
+            "column": "smartbi:calc:diff_price",
+            "expr": ["-", "diffB:smartbi:sold_price:avg", "diffA:smartbi:sold_price:avg"]
+          },
+          {
+            "column": "smartbi:calc:diff_cumulative_cost",
+            "expr": ["-", "diffB:smartbi:calc:cumulative_cost", "diffA:smartbi:calc:cumulative_cost"]
+          }
+        ]
+      }
+    },
+
+    "conf_difftable": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["diffA", "diffB"],
+        "rows": [
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["-", "diffB:smartbi:calc:daily_ro:sum", "diffA:smartbi:calc:daily_ro:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_revenue",
+            "expr": ["-", "diffB:smartbi:calc:daily_revenue:sum", "diffA:smartbi:calc:daily_revenue:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_quant",
+            "expr": ["-", "diffB:smartbi:sold_quant:sum", "diffA:smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_price",
+            "expr": ["-", "diffB:smartbi:sold_price:avg", "diffA:smartbi:sold_price:avg"]
+          }
+        ],
+        "columnDefs": [
+          {
+            "headerName": "prodotti",
+            "children": [
+              {
+                "headerName": "codice prodotto",
+                "field": "smartbi:product_code",
+                "formatter": "noop"
+              }
+            ]
+          },
+          {
+            "headerName": "periodo A",
+            "children": [
+              {
+                "headerName": "margine lordo",
+                "field": "diffA:smartbi:calc:daily_ro:sum"
+              },
+              {
+                "headerName": "ricavi",
+                "field": "diffA:smartbi:calc:daily_ro:sum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "q.tà vendute",
+                "field": "diffA:smartbi:sold_quant:sum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "prezzo medio",
+                "field": "diffA:smartbi:sold_price:avg",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "c.u. medio",
+                "field": "diffA:smartbi:unit_cost:avg",
+                "columnGroupShow": "closed"
+              }
+            ]
+          },
+          {
+            "headerName": "periodo B",
+            "children": [
+              {
+                "headerName": "margine lordo",
+                "field": "diffB:smartbi:calc:daily_ro:sum"
+              },
+              {
+                "headerName": "ricavi",
+                "field": "diffB:smartbi:calc:daily_revenue:sum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "q.tà vendute",
+                "field": "diffB:smartbi:sold_quant:sum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "prezzo medio",
+                "field": "diffB:smartbi:sold_price:avg",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "c.u. medio",
+                "field": "diffB:smartbi:unit_cost:avg",
+                "columnGroupShow": "closed"
+              }
+            ]
+          },
+          {
+            "headerName": "delta",
+            "children": [
+              {
+                "headerName": "differenza margine lordo",
+                "field": "smartbi:calc:diff_ro"
+              },
+              {
+                "headerName": "differenza ricavi",
+                "field": "smartbi:calc:diff_revenue",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "differenza q.tà vendute",
+                "field": "smartbi:calc:diff_quant",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "differenza prezzo medio",
+                "field": "smartbi:calc:diff_price",
+                "columnGroupShow": "closed"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "conf_changemap": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["changeA", "changeB"],
+        "revenue": "smartbi:calc:diff_ro:cum",
+        "rows": [
+          {
+            "column": "smartbi:calc:A",
+            "expr": [
+              "*",
+              ["-", "changeA:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeA:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:B",
+            "expr": [
+              "*",
+              ["-", "changeA:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:C",
+            "expr": [
+              "*",
+              ["-", "changeB:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:D",
+            "expr": [
+              "*",
+              ["-", "changeB:smartbi:sold_price:avg", "changeB:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:diff_quant",
+            "expr": ["-", "smartbi:calc:B", "smartbi:calc:A"]
+          },
+          {
+            "column": "smartbi:calc:diff_price",
+            "expr": ["-", "smartbi:calc:C", "smartbi:calc:B"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost",
+            "expr": ["-", "smartbi:calc:D", "smartbi:calc:C"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["+", ["+", "smartbi:calc:diff_quant", "smartbi:calc:diff_price"], "smartbi:calc:diff_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_quant:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_quant"]
+          },
+          {
+            "column": "smartbi:calc:diff_price:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_price"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_ro"]
+          }
+        ]
+      }
+    },
+    "conf_changegraph": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["changeA", "changeB"],
+        "revenue": "smartbi:calc:diff_ro:cum",
+        "rows": [
+          {
+            "column": "smartbi:calc:A",
+            "expr": [
+              "*",
+              ["-", "changeA:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeA:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:B",
+            "expr": [
+              "*",
+              ["-", "changeA:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:C",
+            "expr": [
+              "*",
+              ["-", "changeB:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:D",
+            "expr": [
+              "*",
+              ["-", "changeB:smartbi:sold_price:avg", "changeB:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:diff_quant",
+            "expr": ["-", "smartbi:calc:B", "smartbi:calc:A"]
+          },
+          {
+            "column": "smartbi:calc:diff_price",
+            "expr": ["-", "smartbi:calc:C", "smartbi:calc:B"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost",
+            "expr": ["-", "smartbi:calc:D", "smartbi:calc:C"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["+", ["+", "smartbi:calc:diff_quant", "smartbi:calc:diff_price"], "smartbi:calc:diff_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_quant:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_quant"]
+          },
+          {
+            "column": "smartbi:calc:diff_price:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_price"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_ro"]
+          }
+        ]
+      }
+    },
+
+    "conf_changetable": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["changeA", "changeB"],
+        "rows": [
+          {
+            "calculate": "expr",
+            "column": "smartbi:calc:diff_ro_change",
+            "expr": ["-", "changeA:smartbi:calc:daily_ro:sum", "changeB:smartbi:calc:daily_ro:sum"]
+          },
+          {
+            "calculate": "diff",
+            "limits": ["changeB", "changeA"],
+            "columns": [
+              "smartbi:calc:diff_change:sold_quant",
+              "smartbi:calc:diff_change:sold_price",
+              "smartbi:calc:diff_change:unit_cost"
+            ],
+            "sequence": ["smartbi:sold_quant:sum", "smartbi:sold_price:avg", "smartbi:unit_cost:avg"],
+            "diff": ["*", ["-", "T:smartbi:sold_price:avg", "T:smartbi:unit_cost:avg"], "T:smartbi:sold_quant:sum"]
+          },
+          {
+            "column": "smartbi:calc:A",
+            "expr": [
+              "*",
+              ["-", "changeA:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeA:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:B",
+            "expr": [
+              "*",
+              ["-", "changeA:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:C",
+            "expr": [
+              "*",
+              ["-", "changeB:smartbi:sold_price:avg", "changeA:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:D",
+            "expr": [
+              "*",
+              ["-", "changeB:smartbi:sold_price:avg", "changeB:smartbi:unit_cost:avg"],
+              "changeB:smartbi:sold_quant:sum"
+            ]
+          },
+          {
+            "column": "smartbi:calc:diff_quant",
+            "expr": ["-", "smartbi:calc:B", "smartbi:calc:A"]
+          },
+          {
+            "column": "smartbi:calc:diff_price",
+            "expr": ["-", "smartbi:calc:C", "smartbi:calc:B"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost",
+            "expr": ["-", "smartbi:calc:D", "smartbi:calc:C"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["+", ["+", "smartbi:calc:diff_quant", "smartbi:calc:diff_price"], "smartbi:calc:diff_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_quant:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_quant"]
+          },
+          {
+            "column": "smartbi:calc:diff_price:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_price"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_cost"]
+          },
+          {
+            "column": "smartbi:calc:diff_ro:cum",
+            "calculate": "func",
+            "func": "cumsum",
+            "on": ["smartbi:calc:diff_ro"]
+          }
+        ],
+        "columnDefs": [
+          {
+            "headerName": "periodo A",
+            "children": [
+              {
+                "headerName": "periodo",
+                "field": "changeA:uatu:date",
+                "formatter": "date"
+              },
+              {
+                "headerName": "margine lordo",
+                "field": "changeA:smartbi:calc:daily_ro:sum"
+              },
+              {
+                "headerName": "ricavi",
+                "field": "changeA:smartbi:calc:daily_revenue:sum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "q.tà vendute",
+                "field": "changeA:smartbi:sold_quant:sum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "prezzo medio",
+                "field": "changeA:smartbi:sold_price:avg",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "c.u. medio",
+                "field": "changeA:smartbi:unit_cost:avg",
+                "columnGroupShow": "closed"
+              }
+            ]
+          },
+          {
+            "headerName": "periodo B",
+            "children": [
+              {
+                "headerName": "periodo",
+                "field": "changeB:uatu:date",
+                "formatter": "date"
+              },
+              {
+                "headerName": "margine lordo",
+                "field": "changeB:smartbi:calc:daily_ro:sum"
+              },
+              {
+                "headerName": "ricavi",
+                "field": "changeB:smartbi:calc:daily_revenue:sum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "q.tà vendute",
+                "field": "changeB:smartbi:sold_quant:sum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "prezzo medio",
+                "field": "changeB:smartbi:sold_price:avg",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "c.u. medio",
+                "field": "changeB:smartbi:unit_cost:avg",
+                "columnGroupShow": "closed"
+              }
+            ]
+          },
+          {
+            "headerName": "impatti",
+            "children": [
+              {
+                "headerName": "differenza margine lordo",
+                "field": "smartbi:calc:diff_ro:cum"
+              },
+              {
+                "headerName": "impatto dei q.tà vendute",
+                "field": "smartbi:calc:diff_quant:cum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "impatto dei prezzi di vendita",
+                "field": "smartbi:calc:diff_price:cum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "impatto dei costi",
+                "field": "smartbi:calc:diff_cost:cum",
+                "columnGroupShow": "closed"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "conf_syncdiffgraph": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["syncdiffA", "syncdiffB"],
+        "revenue": "smartbi:calc:diff_ro",
+        "rows": [
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["-", "syncdiffB:smartbi:calc:daily_ro:sum", "syncdiffA:syncsmartbi:calc:daily_ro:sum"]
+          },
+          {
+            "column": "smartbi:calc:diff_revenue",
+            "expr": ["-", "syncdiffB:smartbi:daily_revenue:avg", "syncdiffA:smartbi:daily_revenue:avg"]
+          },
+          {
+            "column": "smartbi:calc:diff_cost",
+            "expr": ["-", "syncdiffB:smartbi:calc:daily_cost:sum", "syncdiffA:smartbi:calc:daily_cost:sum"]
+          }
+        ]
+      }
+    },
+    "conf_syncchangegraph": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["syncchangeA", "syncchangeB"],
+        "revenue": "smartbi:calc:diff_ro",
+        "rows": [
+          {
+            "column": "smartbi:calc:diff_ro",
+            "expr": ["-", "syncchangeA:smartbi:sold_price:avg", "syncchangeB:smartbi:sold_price:avg"]
+          },
+          {
+            "column": "smartbi:calc:diff_revenue",
+            "expr": ["-", "syncchangeA:smartbi:sold_quant:avg", "syncchangeB:smartbi:sold_quant:avg"]
+          },
+          {
+            "column": "smartbi:calc:daily_ro",
+            "expr": ["-", "smartbi:calc:daily_revenue", "smartbi:calc:daily_cost"]
+          }
+        ]
+      }
+    },
+    "conf_longgraph": {
+      "op": "noop",
+      "options": {
+        "name": "",
+        "prefixes": ["longA", "longB"],
+        "revenue": "smartbi:calc:cumulative_ro",
+        "rows": []
+      }
+    },
+    "conf_pointtable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "codice prodotto",
+            "field": "smartbi:product_code",
+            "formatter": "noop"
+          },
+          {
+            "headerName": "margine lordo",
+            "field": "smartbi:calc:daily_ro:sum"
+          },
+          {
+            "headerName": "ricavi",
+            "field": "smartbi:calc:daily_revenue:sum"
+          },
+          {
+            "headerName": "q.tà vendute",
+            "field": "smartbi:sold_quant:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "prezzo medio",
+            "field": "smartbi:sold_price:avg"
+          },
+          {
+            "headerName": "c.u. medio",
+            "field": "smartbi:unit_cost:avg"
+          }
+        ]
+      }
+    },
+    "conf_pointgraph": {
+      "op": "noop",
+      "options": {
+        "name": "pointgraph",
+        "fixedMeasureA": "smartbi:calc:cumulative_cost",
+        "fixedMeasureB": "smartbi:calc:cumulative_ro",
+        "fixedMeasureC": "smartbi:sold_quant:sum"
+      }
+    },
+
+    "conf_synctable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "data",
+            "sortable": true,
+            "field": "uatu:date",
+            "formatter": "date"
+          },
+          {
+            "headerName": "margine lordo",
+            "field": "smartbi:calc:daily_ro:sum"
+          },
+          {
+            "headerName": "ricavi",
+            "field": "smartbi:calc:daily_revenue:sum"
+          },
+          {
+            "headerName": "q.tà vendute",
+            "field": "smartbi:sold_quant:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "prezzo medio",
+            "field": "smartbi:sold_price:avg"
+          },
+          {
+            "headerName": "c.u. medio",
+            "field": "smartbi:unit_cost:avg"
+          }
+        ]
+      }
+    },
+    "conf_longtable": {
+      "op": "noop",
+      "options": {
+        "columnDefs": [
+          {
+            "headerName": "data",
+            "sortable": true,
+            "field": "uatu:date",
+            "formatter": "date"
+          },
+          {
+            "headerName": "margine lordo",
+            "field": "smartbi:calc:daily_ro:sum"
+          },
+          {
+            "headerName": "ricavi",
+            "field": "smartbi:calc:daily_revenue:sum"
+          },
+          {
+            "headerName": "q.tà vendute",
+            "field": "smartbi:sold_quant:sum",
+            "formatter": "floatamount"
+          },
+          {
+            "headerName": "prezzo medio",
+            "field": "smartbi:sold_price:avg"
+          },
+          {
+            "headerName": "c.u. medio",
+            "field": "smartbi:unit_cost:avg"
+          }
+        ]
+      }
+    },
+    "conf_syncdifftable": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["changeA", "changeB"],
+        "rows": [],
+        "columnDefs": [
+          {
+            "headerName": "Date",
+            "children": [
+              {
+                "sortable": true,
+                "headerName": "Data",
+                "field": "uatu:date",
+                "formatter": "date"
+              }
+            ]
+          },
+          {
+            "headerName": "filtro A",
+            "children": [
+              {
+                "headerName": "margine lordo",
+                "field": "changeA:smartbi:calc:daily_ro:sum"
+              },
+              {
+                "headerName": "ricavi",
+                "field": "changeA:smartbi:calc:daily_revenue:sum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "q.tà vendute",
+                "field": "changeA:smartbi:sold_quant:sum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "prezzo medio",
+                "field": "changeA:smartbi:sold_price:avg",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "c.u. medio",
+                "field": "changeA:smartbi:unit_cost:avg",
+                "columnGroupShow": "closed"
+              }
+            ]
+          },
+          {
+            "headerName": "filtro B",
+            "children": [
+              {
+                "headerName": "margine lordo",
+                "field": "changeB:smartbi:calc:daily_ro:sum"
+              },
+              {
+                "headerName": "ricavi",
+                "field": "changeB:smartbi:calc:daily_revenue:sum",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "q.tà vendute",
+                "field": "changeB:smartbi:sold_quant:sum",
+                "columnGroupShow": "closed",
+                "formatter": "floatamount"
+              },
+              {
+                "headerName": "prezzo medio",
+                "field": "changeB:smartbi:sold_price:avg",
+                "columnGroupShow": "closed"
+              },
+              {
+                "headerName": "c.u. medio",
+                "field": "changeB:smartbi:unit_cost:avg",
+                "columnGroupShow": "closed"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "exploresource": {
+      "op": "clear",
+      "require": ["pre_agg_enhance"]
+    },
+
+    "conf_narrative": {
+      "op": "noop",
+      "options": {
+        "story": "everpix",
+        "currency": "USD"
+      }
+    },
+
+    "conf_explore": {
+      "op": "noop",
+      "options": {
+        "source": "exploresource"
+      }
+    },
+
+    "conf_basegraph": {
+      "op": "noop",
+      "options": {
+        "prefixes": ["baseA", "baseB"],
+        "startingDynamicMeasure": "smartbi:calc:daily_ro:sum",
+        "startingFixedMeasure": "smartbi:calc:daily_ro:sum"
+      }
+    }
+  }
+}
