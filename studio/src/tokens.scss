@@ -1,0 +1,92 @@
+/* GestaltBI design tokens — the same set as gestaltbi-core and the org site. */
+:root {
+  --bg: oklch(98.5% 0.005 240);
+  --bg-tinted: oklch(97% 0.012 245);
+  --surface: oklch(96% 0.008 240);
+  --surface-2: oklch(93% 0.012 240);
+  --rule: oklch(85% 0.014 240);
+  --rule-strong: oklch(72% 0.020 240);
+
+  --ink: oklch(18% 0.024 245);
+  --ink-soft: oklch(34% 0.022 245);
+  --ink-muted: oklch(52% 0.018 245);
+  --ink-faint: oklch(68% 0.014 245);
+
+  --brand-deep: oklch(38% 0.18 248);
+  --brand-blue: oklch(55% 0.19 232);
+  --brand-teal: oklch(64% 0.16 195);
+  --brand-green: oklch(72% 0.20 148);
+  --brand-yellow: oklch(83% 0.18 92);
+  --brand-orange: oklch(66% 0.20 50);
+  --brand-red: oklch(58% 0.22 28);
+
+  --accent: oklch(60% 0.18 38);
+  --accent-strong: oklch(50% 0.20 35);
+  --accent-soft: oklch(94% 0.05 38);
+
+  --focus: oklch(58% 0.20 248);
+  --focus-glow: oklch(58% 0.20 248 / 0.25);
+
+  --spectrum: linear-gradient(105deg,
+    var(--brand-deep) 0%, var(--brand-blue) 16%, var(--brand-teal) 32%,
+    var(--brand-green) 50%, var(--brand-yellow) 68%, var(--brand-orange) 84%,
+    var(--brand-red) 100%);
+
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Funnel Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-base: 1.6;
+  --letter-tight: -0.022em;
+  --letter-wide: 0.04em;
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-pill: 9999px;
+  --shadow-sm: 0 1px 2px oklch(20% 0.06 245 / 0.08);
+
+  --side-w: 232px;
+  --top-h: 60px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: oklch(15% 0.014 245);
+    --bg-tinted: oklch(18% 0.018 245);
+    --surface: oklch(20% 0.016 245);
+    --surface-2: oklch(24% 0.018 245);
+    --rule: oklch(34% 0.020 245);
+    --rule-strong: oklch(46% 0.024 245);
+
+    --ink: oklch(96% 0.008 245);
+    --ink-soft: oklch(82% 0.012 245);
+    --ink-muted: oklch(64% 0.016 245);
+    --ink-faint: oklch(48% 0.018 245);
+
+    --brand-deep: oklch(50% 0.20 248);
+    --brand-blue: oklch(64% 0.20 232);
+    --brand-teal: oklch(70% 0.16 195);
+    --brand-green: oklch(76% 0.20 148);
+    --brand-yellow: oklch(86% 0.18 92);
+    --brand-orange: oklch(72% 0.20 50);
+    --brand-red: oklch(66% 0.22 28);
+
+    --accent: oklch(68% 0.18 38);
+    --accent-strong: oklch(76% 0.16 38);
+    --accent-soft: oklch(28% 0.07 38);
+    color-scheme: dark;
+  }
+}
+
+/* Depth cues the canvas needs; the docs pages never did. */
+:root {
+  --shadow-sm: 0 1px 2px oklch(20% 0.06 245 / 0.10);
+  --shadow-md: 0 8px 24px oklch(20% 0.06 245 / 0.14), 0 2px 6px oklch(20% 0.06 245 / 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.5);
+    --shadow-md: 0 8px 24px oklch(0% 0 0 / 0.55), 0 2px 6px oklch(0% 0 0 / 0.35);
+  }
+}

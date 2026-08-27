@@ -1,0 +1,39 @@
+{
+  "name": "gestaltbi-studio",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "ng build",
+    "start": "ng serve"
+  },
+  "private": true,
+  "packageManager": "npm@10.9.8",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "@angular/elements": "^21.2.0",
+    "zone.js": "~0.15.0",
+    "rete": "^2.0.6",
+    "rete-angular-plugin": "^2.7.1",
+    "rete-area-plugin": "^2.3.2",
+    "rete-connection-plugin": "^2.0.5",
+    "rete-render-utils": "^2.0.1",
+    "rete-auto-arrange-plugin": "^2.0.2",
+    "@gestaltbi/editor": "file:.."
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.22",
+    "@angular/cli": "^21.2.22",
+    "@angular/compiler-cli": "^21.2.0",
+    "jsdom": "^28.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  },
+  "description": "The GestaltBI pipeline editor: a node canvas over a process graph."
+}

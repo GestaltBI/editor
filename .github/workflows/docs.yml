@@ -31,6 +31,15 @@ jobs:
       - name: Build the docs
         run: npm run docs
 
+      # The studio is a separate Angular app that consumes this package, so it
+      # installs after the library has been built by `prepare`.
+      - name: Build the studio
+        run: |
+          npm install --prefix studio --no-audit --no-fund
+          npm run build --prefix studio
+          mkdir -p docs/studio
+          cp -r studio/dist/browser/. docs/studio/
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

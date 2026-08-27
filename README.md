@@ -1,6 +1,7 @@
 # @gestaltbi/editor
 
-**[Documentation →](https://gestaltbi.github.io/editor/)**
+**[Documentation →](https://gestaltbi.github.io/editor/)** &nbsp;·&nbsp;
+**[Open the Studio →](https://gestaltbi.github.io/editor/studio/)**
 
 Read a GestaltBI process graph as a graph: typed nodes, laid out, validated, and
 written back without losing what it did not understand.
@@ -111,6 +112,36 @@ the original key order — so a diff shows what you changed and nothing else.
 
 There are tests for this. They round-trip all three shipped bundles and assert
 the output is byte-identical to the input.
+
+## The Studio
+
+The node canvas this package exists for lives in
+[`studio/`](studio) and is published at
+[gestaltbi.github.io/editor/studio](https://gestaltbi.github.io/editor/studio/).
+
+Open a config repo by its `org/repo` slug, or a `processing.json` from disk, and
+the graph draws itself. Add stages from a palette grouped by what they do to the
+data, wire them by dragging between sockets, rename and edit options in the
+inspector, and copy the result back out. Problems are listed as you work, and
+clicking one selects the stage it is about.
+
+It is Angular with [Rete](https://retejs.org), and it is a *host* — every
+decision about what the graph means comes from this package, so the editor and
+the read-only view in the product cannot disagree.
+
+Two things it does deliberately:
+
+- **Settings carriers stay on the canvas**, in their own row below the pipeline.
+  The read-only view hides them because they are not stages; the editor shows
+  them because hiding them would make them uneditable.
+- **The document is the source.** Every edit rewrites the config and the canvas
+  redraws from it, so there is no moment where the picture and the file disagree.
+
+```sh
+cd studio
+npm install     # installs the library from .. via its prepare step
+npm start
+```
 
 ## Development
 

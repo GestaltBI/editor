@@ -10,7 +10,8 @@ it sits, what is wrong with it — and the host draws it: as SVG for a read-only
 for an editable one.
 
 Its job is to make an existing \`processing.json\` openable. Nothing has to be migrated, nothing is lost on
-the way back out.`,
+the way back out. The canvas it exists for is
+[the Studio](https://gestaltbi.github.io/editor/studio/), which is built on exactly this API.`,
 };
 
 export const sections = [
@@ -132,6 +133,27 @@ const config = writeGraph(graph.nodes, processingJson);`,
           ['`too-many-inputs`', 'More inputs wired than the op reads'],
           ['`unknown-op`', 'An op this host has not declared &mdash; a warning, not an error'],
         ],
+      ),
+    ].join('\n'),
+  },
+
+  {
+    title: 'The Studio',
+    body: [
+      h.p(
+        `The node canvas this package exists for. Open a config repo by its \`org/repo\` slug, or a
+         \`processing.json\` from disk, and the graph draws itself — then add stages from a palette grouped
+         by what they do to the data, wire them by dragging between sockets, and copy the result back out.`,
+      ),
+      h.p(
+        `It is a *host*, not a fork: every decision about what the graph means comes from this package, which
+         is why the editor and the read-only view inside GestaltBI cannot disagree about a config. Sockets
+         come from each op's declared arity; problems are listed as you work; the document is the source and
+         the canvas redraws from it.`,
+      ),
+      h.note(
+        `[Open the Studio](https://gestaltbi.github.io/editor/studio/) &mdash; it needs no key and stores
+         nothing. Everything happens in the tab.`,
       ),
     ].join('\n'),
   },

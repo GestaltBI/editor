@@ -1,0 +1,68 @@
+<header class="bar">
+  <div class="bar__brand">
+    <span class="bar__mark" aria-hidden="true"></span>
+    <div>
+      <strong>GestaltBI Studio</strong>
+      <span class="bar__sub">editing {{ graphs.origin() }}</span>
+    </div>
+  </div>
+
+  <div class="bar__load">
+    <input
+      type="text"
+      [ngModel]="repo()"
+      (ngModelChange)="repo.set($event)"
+      (keydown.enter)="loadRepo()"
+      placeholder="org/repo"
+      spellcheck="false"
+      aria-label="GitHub config repository"
+    />
+    <button type="button" (click)="loadRepo()" [disabled]="busy()">
+      {{ busy() ? 'Loading…' : 'Open from GitHub' }}
+    </button>
+    <label class="filebtn">
+      Open a file
+      <input type="file" accept=".json,application/json" (change)="openFile($event)" hidden />
+    </label>
+    <button type="button" class="ghost" (click)="blank()">Blank</button>
+  </div>
+
+  <div class="bar__actions">
+    <button type="button" class="ghost" (click)="fit()">Fit</button>
+    <button type="button" class="solid" (click)="showExport()">Export</button>
+  </div>
+</header>
+
+@if (error()) { <p class="banner">{{ error() }}</p> }
+
+<main class="layout">
+  <aside class="layout__left">
+    <h2>Add a stage</h2>
+    <app-palette />
+  </aside>
+
+  <section class="layout__canvas">
+    <app-canvas />
+  </section>
+
+  <aside class="layout__right">
+    <h2>Stage</h2>
+    <app-inspector />
+    <h2>Problems</h2>
+    <app-problems />
+  </aside>
+</main>
+
+@if (exported()) {
+  <div class="sheet" role="dialog" aria-label="Exported configuration">
+    <div class="sheet__box">
+      <header>
+        <strong>processing.json</strong>
+        <span>Paste this into your config repo.</span>
+        <button type="button" class="solid" (click)="copyExport()">Copy</button>
+        <button type="button" class="ghost" (click)="closeExport()">Close</button>
+      </header>
+      <pre>{{ exported() }}</pre>
+    </div>
+  </div>
+}

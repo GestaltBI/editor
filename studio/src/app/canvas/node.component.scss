@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  position: relative;
+  user-select: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  &__kind {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__op {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+
+  // A view subscribes to this stage. The one place the accent appears.
+  &.is-leaf::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+}
+
+:host(.selected) .stage {
+  border-width: 2.5px;
+  box-shadow: var(--shadow-md);
+}
+
+// Kind is the only thing carrying colour, because it is what is being taught.
+@each $kind, $colour in (
+  prepare: var(--brand-blue), narrow: var(--brand-teal), derive: var(--brand-green),
+  summarise: var(--brand-orange), combine: var(--brand-yellow), relate: var(--brand-deep),
+  place: var(--brand-red), check: var(--accent), settings: var(--ink-faint), unknown: var(--ink-faint)
+) {
+  .stage--#{$kind} {
+    border-color: #{$colour};
+    background: color-mix(in oklch, #{$colour} 8%, var(--surface));
+  }
+  .stage--#{$kind} .stage__kind { color: #{$colour}; }
+}
+
+.ports {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+
+  &--in { left: -12px; }
+  &--out { right: -12px; }
+}
+
+.port__socket {
+  display: block;
+}

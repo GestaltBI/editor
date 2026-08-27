@@ -1,0 +1,22 @@
+.problems {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12.5px;
+
+  li {
+    cursor: pointer;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--surface);
+    border-left: 3px solid var(--ink-faint);
+    color: var(--ink-soft);
+    &:hover { background: var(--surface-2); }
+    &.is-error { border-left-color: var(--neg); background: var(--neg-soft); color: var(--neg); }
+  }
+  code { margin-right: 5px; }
+}
+.ok { margin: 0; font-size: 12.5px; color: var(--pos); }

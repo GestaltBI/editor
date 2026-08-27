@@ -4,3 +4,6 @@ dist/
 .DS_Store
 package-lock.json
 /docs/
+studio/dist/
+studio/.angular/
+.vscode/
