@@ -19,6 +19,7 @@ const LIBRARIES = [
   { name: 'stream', href: 'https://gestaltbi.github.io/stream/' },
   { name: 'storybook', href: 'https://gestaltbi.github.io/storybook/' },
   { name: 'inference', href: 'https://gestaltbi.github.io/inference/' },
+  { name: 'editor', href: 'https://gestaltbi.github.io/editor/' },
 ];
 
 const api = readApi('src/index.ts');
