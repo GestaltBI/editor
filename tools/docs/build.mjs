@@ -20,6 +20,7 @@ const LIBRARIES = [
   { name: 'storybook', href: 'https://gestaltbi.github.io/storybook/' },
   { name: 'inference', href: 'https://gestaltbi.github.io/inference/' },
   { name: 'editor', href: 'https://gestaltbi.github.io/editor/' },
+  { name: 'dbtcharts', href: 'https://gestaltbi.github.io/dbtcharts/' },
 ];
 
 const api = readApi('src/index.ts');
