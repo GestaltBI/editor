@@ -32,10 +32,12 @@ jobs:
         run: npm run docs
 
       # The studio is a separate Angular app that consumes this package, so it
-      # installs after the library has been built by `prepare`.
+      # installs after the library has been built by `prepare`. `npm ci`
+      # against the committed lockfile: resolving afresh on every run is how a
+      # dependency release broke this build with no change in this repo.
       - name: Build the studio
         run: |
-          npm install --prefix studio --no-audit --no-fund
+          npm ci --prefix studio --no-audit --no-fund
           npm run build --prefix studio
           mkdir -p docs/studio
           cp -r studio/dist/browser/. docs/studio/

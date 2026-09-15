@@ -2,7 +2,7 @@ node_modules/
 dist/
 *.tgz
 .DS_Store
-package-lock.json
+/package-lock.json
 /docs/
 studio/dist/
 studio/.angular/
